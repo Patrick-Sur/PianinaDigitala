@@ -1,0 +1,116 @@
+%{
+#include <iostream>
+#include <vector>
+#include <map>
+#include <string>
+#include <cmath>
+
+std::map<std::string, double> base_freq = {
+    {"C", 261.63}, // Do
+    {"D", 293.66}, // Re
+    {"E", 329.63}, // Mi
+    {"F", 349.23}, // Fa
+    {"G", 392.00}, // Sol
+    {"A", 440.00}, // La
+    {"B", 493.88}  // Si
+};
+
+double calculeazaFrecventa(std::string nota, int alteratie, int octava_offset) {
+    std::string nota_baza = nota;
+    if (islower(nota[0])) {
+        nota_baza[0] = toupper(nota[0]);
+    }
+
+    double freq = base_freq[nota_baza];
+
+    if (islower(nota[0])) {
+        freq *= 2.0;
+    }
+
+    if (octava_offset > 0) freq *= std::pow(2.0, octava_offset);
+    else if (octava_offset < 0) freq /= std::pow(2.0, std::abs(octava_offset));
+
+
+    if (alteratie == 1) freq *= std::pow(2.0, 1.0/12.0);       // Diez
+    else if (alteratie == -1) freq /= std::pow(2.0, 1.0/12.0); // Bemol
+
+    return freq;
+}
+
+int yylex();
+void yyerror(const char *s) { std::cerr << "Eroare: " << s << std::endl; }
+%}
+
+%code requires {
+    #include <string>
+}
+
+%union {
+    int duration_val;
+    std::string* note_name; 
+}
+
+
+%token <duration_val> DURATION
+%token <note_name> NOTE
+%token DIEZ BEMOL OCTAVA_SUS OCTAVA_JOS SLASH
+
+%type <duration_val> semn_alteratie modificare_octava
+%type <double> modificare_durata
+
+%%
+
+
+piesa:
+      /* epsilon */
+    | piesa element_muzical
+    ;
+
+element_muzical:
+    nota_completa { std::cout << "Nota procesata cu succes!\n"; }
+    ;
+
+nota_completa:
+    semn_alteratie NOTE modificare_octava modificare_durata 
+    {
+        int alt = $1;
+        int oct = $3;
+        double dur = $4;
+        
+        double freq = calculeazaFrecventa(*$2, alt, oct);
+        
+        std::cout << "Nota: " << *$2 
+                  << " | Freq: " << freq << " Hz" 
+                  << " | Durata: " << dur << "x unitate" << std::endl;
+
+        delete $2;
+    }
+    ;
+
+semn_alteratie:
+      DIEZ          { $$ = 1; }
+    | BEMOL         { $$ = -1; }
+    | %empty        { $$ = 0; }
+    ;
+
+modificare_octava:
+      OCTAVA_SUS    { $$ = 1; }
+    | OCTAVA_JOS    { $$ = -1; }
+    | %empty        { $$ = 0; }
+    ;
+
+modificare_durata:
+      DURATION                    { $$ = (double)$1; }
+    | SLASH DURATION              { $$ = 1.0 / (double)$2; }
+    | DURATION SLASH DURATION     { $$ = (double)$1 / (double)$3; }
+    | SLASH                       { $$ = 0.5; }
+    | %empty                      { $$ = 1.0; }
+    ;
+
+%%
+
+int main() {
+    std::cout << "Incepe parsarea ABC..." << std::endl;
+    yyparse();
+    return 0;
+}

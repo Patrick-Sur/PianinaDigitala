@@ -1,0 +1,10 @@
+C D C E/3 F/3 E/3 
+C D C E/3 F/3 E/3 
+D E D E/3 F/3 E/3
+D/3 C/3 D/3 E/3 F/3 E/3 D/3 C/3 D/3 E/3 F/3 E/3 
+c d c e/3 f/3 e/3 
+c d c e/3 f/3 e/3 
+d e d e/3 f/3 e/3
+d/3 c/3 d/3 e/3 f/3 e/3 d/3 c/3 d/3 e/3 f/3 e/3 
+c/3 c/3 c/3 d/3 d/3 d/3 g/3 e2/3 e/3 f/3 e/3 
+c/3 c/3 c/3 d/3 d/3 d/3 c/3 A2/3
